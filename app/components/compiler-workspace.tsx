@@ -5,6 +5,7 @@ import Editor from "@monaco-editor/react";
 import type { Language } from "@/app/types/compiler";
 
 type CompilerWorkspaceProps = {
+  authStatus: "loading" | "authenticated" | "unauthenticated";
   sessionEmail?: string | null;
   languages: Language[];
   selectedLanguage: string;
@@ -12,6 +13,8 @@ type CompilerWorkspaceProps = {
   stdin: string;
   output: string;
   loading: boolean;
+  languageLoading: boolean;
+  onSignIn: () => void;
   onSignOut: () => void;
   onLanguageChange: (languageId: string) => void;
   onCodeChange: (value: string) => void;
@@ -20,6 +23,7 @@ type CompilerWorkspaceProps = {
 };
 
 export function CompilerWorkspace({
+  authStatus,
   sessionEmail,
   languages,
   selectedLanguage,
@@ -27,6 +31,8 @@ export function CompilerWorkspace({
   stdin,
   output,
   loading,
+  languageLoading,
+  onSignIn,
   onSignOut,
   onLanguageChange,
   onCodeChange,
@@ -44,11 +50,18 @@ export function CompilerWorkspace({
       <header className="top-bar">
         <div className="brand-block">
           <h1>Online Compiler</h1>
-          <p>{sessionEmail ? `Signed in as ${sessionEmail}` : ""}</p>
+          <p>
+            {authStatus === "loading"
+              ? "Checking session..."
+              : sessionEmail
+                ? `Signed in as ${sessionEmail}`
+                : "Guest mode"}
+          </p>
         </div>
 
         <div className="bar-controls">
           <select
+            disabled={languageLoading || languages.length === 0}
             value={selectedLanguage}
             onChange={(event) => onLanguageChange(event.target.value)}
           >
@@ -62,15 +75,26 @@ export function CompilerWorkspace({
           <button
             type="button"
             className="primary-button"
-            disabled={loading}
+            disabled={loading || languageLoading || !selectedLanguage}
             onClick={onRun}
           >
             {loading ? "Running..." : "Run"}
           </button>
 
-          <button type="button" className="ghost-button" onClick={onSignOut}>
-            Sign out
-          </button>
+          {sessionEmail ? (
+            <button type="button" className="ghost-button" onClick={onSignOut}>
+              Sign out
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="ghost-button"
+              onClick={onSignIn}
+              disabled={authStatus === "loading"}
+            >
+              Sign in
+            </button>
+          )}
         </div>
       </header>
 
@@ -147,7 +171,9 @@ export function CompilerWorkspace({
 
         <section className="panel output-panel">
           <div className="panel-label">Output</div>
-          <pre className="output-block">{output}</pre>
+          <pre className="output-block">
+            {output || (languageLoading ? "Loading languages..." : "Ready.")}
+          </pre>
         </section>
       </main>
     </div>
