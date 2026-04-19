@@ -181,6 +181,8 @@ GOOGLE_CLIENT_ID          # Google OAuth client ID
 GOOGLE_CLIENT_SECRET      # Google OAuth client secret
 ```
 
+> ⚠️ **Important:** For code execution to work, you must have valid environment variables configured for the **Code Executor backend** service. This includes database connections, authentication tokens, and service URLs. Without proper backend configuration, code execution will fail.
+
 ## 🔗 Code Executor Backend
 
 Powered by [Code Executor](https://github.com/ishaan-jindal/code-executor) — a secure, isolated code execution service.
